@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Card Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 2em;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(8, 150px); /* 8 columns */
+      grid-gap: 10px;
+      margin: 20px auto;
+      max-width: 1200px; /* Increased width to accommodate 8 columns */
+      padding: 20px;
+    }
+
+    .card {
+      width: 150px;
+      height: 150px;
+      background-color: #4caf50;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      transform: scale(1);
+      transition: transform 0.3s ease;
+    }
+
+    .card.flipped {
+      background-color: #fff;
+    }
+
+    .card img {
+      width: 60%;
+      display: none;
+    }
+
+    .card.flipped img {
+      display: block;
+    }
+
+    .card.matched {
+      background-color: #9ccc65;
+      pointer-events: none;
+    }
+
+    .restart-btn {
+      padding: 10px 20px;
+      background-color: #ff4081;
+      color: white;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 30px;
+    }
+
+    .restart-btn:hover {
+      background-color: #f50057;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Card Game</h1>
+  <div id="game-board" class="game-board"></div>
+  <button id="restart-btn" class="restart-btn">Restart Game</button>
+
+  <script>
+    const cardImages = [
+      "1.jfif", "2.jfif", "3.jfif", "4.jfif", "5.jfif", "6.jfif", "7.jfif",
+      "8.jfif", "9.jfif", "10.jfif", "11.jfif", "12.jfif", "13.jfif", "14.jfif", "15.jfif", "16.jfif",
+      "1.jfif", "2.jfif", "3.jfif", "4.jfif", "5.jfif", "6.jfif", "7.jfif", "8.jfif", "9.jfif", "10.jfif",
+      "11.jfif", "12.jfif", "13.jfif", "14.jfif", "15.jfif", "16.jfif"
+    ]; // Duplicate each image
+
+    const gameBoard = document.getElementById("game-board");
+    const restartBtn = document.getElementById("restart-btn");
+
+    let flippedCards = [];
+    let matchedCards = 0;
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function createCard(image) {
+      const card = document.createElement("div");
+      card.classList.add("card");
+      
+      const img = document.createElement("img");
+      img.src = `images/${image}`;  // Adjusted path to local folder
+      img.alt = image;
+      card.appendChild(img);
+
+      card.addEventListener("click", () => flipCard(card, img));
+      return card;
+    }
+
+    function flipCard(card, img) {
+      if (card.classList.contains("flipped") || flippedCards.length === 2) return;
+
+      card.classList.add("flipped");
+      flippedCards.push({ card, img });
+
+      if (flippedCards.length === 2) {
+        checkForMatch();
+      }
+    }
+
+    function checkForMatch() {
+      const [card1, card2] = flippedCards;
+
+      if (card1.img.src === card2.img.src) {
+        card1.card.classList.add("matched");
+        card2.card.classList.add("matched");
+        matchedCards += 2;
+
+        if (matchedCards === cardImages.length) {
+          setTimeout(() => alert("You won!"), 500);
+        }
+
+        flippedCards = [];
+      } else {
+        setTimeout(() => {
+          card1.card.classList.remove("flipped");
+          card2.card.classList.remove("flipped");
+          flippedCards = [];
+        }, 1000);
+      }
+    }
+
+    function startGame() {
+      matchedCards = 0;
+      flippedCards = [];
+      gameBoard.innerHTML = "";
+
+      const shuffledImages = [...cardImages];
+      shuffleArray(shuffledImages);
+
+      shuffledImages.forEach(image => {
+        const card = createCard(image);
+        gameBoard.appendChild(card);
+      });
+    }
+
+    restartBtn.addEventListener("click", startGame);
+
+    startGame();
+  </script>
+</body>
+</html>
